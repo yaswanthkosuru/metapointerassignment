@@ -38,7 +38,7 @@ const transactionpage = () => {
                         return (
                             <div className="border p-4 my-4 bg-green-50/90">
                                 <p className="font-bold">
-                                    'Received From {from}
+                                    Received From {from}
                                 </p>
                                 <hr className="my-2" />
                                 <p className="text-lg">&#8377;{amount}</p>
