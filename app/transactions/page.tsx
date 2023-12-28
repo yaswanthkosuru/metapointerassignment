@@ -25,10 +25,20 @@ const transactionpage = () => {
                         const { from, to, amount, time } = trans;
                         const isSent = from === session?.user.name;
                         const timestamp = new Date(time);
-                        return (
-                            <div className="border p-4 my-4 bg-blue-50/50">
+                        if (isSent) {
+                            <div className="border p-4 my-4 bg-red-50/90">
                                 <p className="font-bold">
-                                    {isSent ? 'Sent To' : 'Received From'} {isSent ? to : from}
+                                    <p>Sent to {to}</p>
+                                </p>
+                                <hr className="my-2" />
+                                <p className="text-lg">&#8377;{amount}</p>
+                                <p>at {timestamp.toDateString()}</p>
+                            </div>
+                        }
+                        return (
+                            <div className="border p-4 my-4 bg-green-50/90">
+                                <p className="font-bold">
+                                    'Received From {from}
                                 </p>
                                 <hr className="my-2" />
                                 <p className="text-lg">&#8377;{amount}</p>
