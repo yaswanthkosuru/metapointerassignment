@@ -33,6 +33,7 @@ const Recipients = () => {
     }
     return (
         <div className='sm:w-1/2 mx-auto'>
+            <p className='text-xl'>please choose any contact</p>
 
             <div className='flex items-center justify-center flex-col'>
                 <select
