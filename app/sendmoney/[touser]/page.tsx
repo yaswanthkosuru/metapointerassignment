@@ -3,7 +3,7 @@ import Nav from '@/components/Nav';
 import { playfairdisplay, ptserif, roboto } from '@/components/fonts';
 import Loading from '@/components/loading';
 import axios from 'axios';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
 const page = () => {
@@ -12,14 +12,23 @@ const page = () => {
     const [loading, setloading] = useState<boolean>(true);
     const [reload, setreload] = useState<boolean>();
     const [t, sett] = useState<{ from?: string, to: string, amount: number, time: Date }[]>();
+    const router = useRouter();
     useEffect(() => {
         async function gett() {
             console.log('gett');
-            const res = await axios.post('/api/transactions', { touser: touser });
-            const { transactions } = res.data;
-            sett(transactions);
-            console.log(transactions, 'transactions');
-            setloading(false);
+            try {
+
+                const res = await axios.post('/api/transactions', { touser: touser });
+                const { transactions } = res.data;
+                sett(transactions);
+                console.log(transactions, 'transactions');
+                setloading(false);
+                setamount(0);
+            } catch (error) {
+                alert('error occured please check your balance')
+
+            }
+
         }
         gett();
     }, [reload]);
@@ -27,12 +36,22 @@ const page = () => {
         setloading(true);
 
         try {
+            if (!amount) {
+                alert('please enter amount');
+                throw new Error('please enter amount');
+            }
+            if (amount && amount < 0) {
+                alert('amount must be greater than zero');
+                throw new Error('please enter amount');
+
+            }
             await axios.post('/api/addtransaction', {
                 toUser: touser,
                 amount: amount
             })
             setloading(false);
             setreload(prev => !prev);
+            router.push('/cashbacks')
         } catch (error) {
 
             setloading(false);
@@ -49,7 +68,7 @@ const page = () => {
                 <hr className='bg-blue-200 h-[2px]' />
                 <div className='font-bold text-center flex justify-center items-center text-xl '>Recent transactions</div>
                 {
-                    t?.map((each) => {
+                    t?.map((each, index) => {
                         const dateObject = new Date(each.time);
                         console.log();
 
@@ -57,7 +76,7 @@ const page = () => {
 
                         if (!each.from) {
 
-                            return <div className='flex mb-4 justify-start'>
+                            return <div key={index} className='flex mb-4 justify-start'>
                                 <div className='px-12 py-8 bg-blue-50/80 shadow-md'>
                                     <div className='text-5xl'>&#8377;{each.amount}</div>
                                     <hr />
@@ -68,7 +87,7 @@ const page = () => {
 
                             </div>
                         }
-                        return <div className='flex mb-4 justify-end'>
+                        return <div key={index} className='flex mb-4 justify-end'>
                             <div className='px-12 py-8 bg-blue-50/80 shadow-md'>
                                 <div className='text-5xl'>&#8377;{each.amount}</div>
                                 <div>Sent Succesfully </div>

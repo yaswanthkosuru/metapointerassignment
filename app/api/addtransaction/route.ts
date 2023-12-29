@@ -3,7 +3,23 @@ import { handler } from "../auth/[...nextauth]/route";
 import { ConnectToDB } from "@/utils/connectDb";
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-
+function getcashback({ amount }: { amount: number }) {
+    if (amount % 500 == 0) {
+        //no cashback
+        var result = 0;
+        return { result, cbtype: 'Better luck next time' }
+    }
+    if (amount < 1000) {
+        //5% cashback
+        var result = (5 / 100) * amount;
+        result = Math.ceil(result);
+        return { result, cbtype: '5% cashback offer' }
+    }
+    //2% cashback
+    var result = (2 / 100) * amount;
+    result = Math.ceil(result);
+    return { result, cbtype: '2% cashback offer' }
+}
 export async function POST(req: NextRequest, res: NextResponse) {
     const d = await getServerSession(handler);
     if (!d?.user.name) {
@@ -20,6 +36,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         await session.withTransaction(async () => {
             const transCollection = client.db('assignment').collection('transaction');
             const usersCollection = client.db('assignment').collection('users');
+            const cbCollection = client.db('assignment').collection('cashbacks');
             const usersdb = await usersCollection.findOne({
                 phonenumber: d.user.name
             })
@@ -47,6 +64,20 @@ export async function POST(req: NextRequest, res: NextResponse) {
                 to: toUser,
                 amount: amount,
                 time: new Date(),
+            }, { session });
+            const { result, cbtype } = getcashback({ amount });
+            await cbCollection.insertOne({
+                from: d.user.name,
+                to: toUser,
+                amount: result,
+                time: new Date(),
+                cashbacktype: cbtype,
+            }, { session });
+            //credit to user account
+            await usersCollection.updateOne({
+                phonenumber: d.user.name
+            }, {
+                $inc: { amount: result }
             }, { session });
         });
     } catch (err) {
