@@ -4,7 +4,7 @@ import React from 'react'
 const Services = () => {
     return (
         <div className='sm:w-1/2 mx-auto'>
-            <div className='flex sm:gap-10'>
+            <div className='flex sm:gap-10 gap-4'>
                 <Link href='/sendmoney' className='flex flex-col items-center justify-center'>
                     <svg width="80" height="80" viewBox="0 -37 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
                         <g>
